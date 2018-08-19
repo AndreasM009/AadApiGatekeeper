@@ -15,11 +15,24 @@ https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-v1-in
 ### Features
 - ReverseProxy 
 - Get user's claims with a single call to http://<reverseproxy>/me
-- Acquire tokens for other protected AAD resources for On-Behalof-Of flow
+- Acquire tokens for other protected AAD resources for On-Behalf-Of flow
 - Define public accessable routes in your API
 - Simple Kubernetes integration ([SideCar example](doc/SideCarExample.md))
 - Token caching
 
 ### Configuration
+Configuration is done using environment variables. There are two sections:
+- Authentication
+- Proxy
+
+Authentication section:
+- ClientId -> the ClientId (or ApplicationId) of your registered AAD application
+- ClientSecret -> the ClientSecret of your AAd application. This setting is needed for acquiring tokens to other protected AAD resources on behalf of the authenticated user
+- Tenant -> AAD tenant id or name
+
+Proxy section:
+- Port -> the port to use running the Gatekeeper
+- ForwardPort -> the port to which requests are forwared (port of your API)
+- AnonymousPaths -> a comma seperated list of public acessable routes in your API. E.g.: if you are using Swagger you have to specify "/swagger" or if you have additionally public routes "/swagger,/public"
 
 ### Overview
