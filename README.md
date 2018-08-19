@@ -13,6 +13,12 @@ Creating a new AAD application is shown here:
 https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-v1-integrate-apps-with-azure-ad
 
 ### Features
+- ReverseProxy 
+- Get user's claims with a single call to http://<reverseproxy>/me
+- Acquire tokens for other protected AAD resources for On-Behalof-Of flow
+- Define public accessable routes in your API
+- Simple Kubernetes integration ([SideCar example](doc/SideCarExample.md))
+- Token caching
 
 ### Configuration
 
