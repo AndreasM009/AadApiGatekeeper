@@ -1,0 +1,79 @@
+﻿apiVersion: v1
+kind: Secret
+metadata:
+  name: k8ssidecar
+type: Opaque
+data:
+  AuthCliendId: "#{AadClientID}#"
+  AuthClientSecret: "#{AddClientSecret}#"
+  AuthAadTenant: "#{AadTenant}#"
+---
+apiVersion: "v1"
+kind: Service
+metadata:
+  name: k8ssidecarsvc
+  labels:
+    name: k8ssidecarsvc
+    app: k8ssidecar
+spec:
+  selector:
+    name: k8ssidecarbackend
+    app: k8ssidecar
+  type: LoadBalancer
+  ports:
+    - port: 80
+      name: http
+      targetPort: 8080
+      protocol: TCP
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: k8ssidecarbackend
+spec:
+  replicas: 2
+  minReadySeconds: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        name: k8ssidecarbackend
+        app: k8ssidecar
+    spec:
+      containers:
+      - name: authproxy
+        image: #{registryname}#.azurecr.io/aadapigatekeeper:0.0.#{BuildNumber}#
+        env:
+          - name: Authentication__ClientId
+            valueFrom: 
+              secretKeyRef:
+                name: k8ssidecar
+                key: AuthCliendId
+          - name: Authentication__ClientSecret
+            valueFrom:
+              secretKeyRef:
+                name: k8ssidecar
+                key: AuthClientSecret
+          - name: Authentication__Tenant
+            valueFrom:
+              secretKeyRef:
+                name: k8ssidecar
+                key: AuthAadTenant
+          - name: Proxy__Port
+            value: "8080"
+          - name: Proxy__ForwardPort
+            value: "80"
+          - name: Proxy_AnonymousPaths
+            value: "/swagger"
+        ports:
+          - containerPort: 8080
+            name: http
+            protocol: TCP           
+      - name: k8ssidecar
+        image: #{registryname}#.azurecr.io/k8ssidecar:0.0.#{BuildNumber}#
+      imagePullSecrets:
+        - name: #{registrysecret}#
