@@ -2,7 +2,7 @@
 The AadApiGatekeeper protects your API with Azure Active Directory.
 
 ## Description
-The here implemented Gatekeeper can be used as a Reverse Proxy in front of your API.
+The here implemented Gatekeeper can be used as a Reverse Proxy in front of your API that is hosted in a Kubernetes Custer. The [SideCar](https://docs.microsoft.com/en-us/azure/architecture/patterns/sidecar) pattern is used to put the gatekeeper in front of your API.
 Protecting an API using Azure Active Directory can often be anoying, especially if you are using programming languages
 where no Azure Active Directory integration libraries are available or if you don't find any examples in the internet.
 The AadApiGatekeeper is implemented in ASP.NET Core and can be used on every platfrom that supports the .NET Core runtime.
@@ -13,9 +13,9 @@ Creating a new AAD application is shown here:
 https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-v1-integrate-apps-with-azure-ad
 
 ### Features
-- ReverseProxy 
-- Get user's claims with a single call to http://<reverseproxy>/me
-- Acquire tokens for other protected AAD resources for On-Behalf-Of flow
+- ReverseProxy to make sure there is a valid AAD token
+- Get user's claims with a single call to http://localhost/me
+- Acquire tokens for other protected AAD resources for On-Behalf-Of flow http://localhost/me/token/{resource}
 - Define public accessable routes in your API
 - Simple Kubernetes integration ([SideCar example](doc/SideCarExample.md))
 - Token caching
