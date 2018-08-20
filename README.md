@@ -2,7 +2,7 @@
 The AadApiGatekeeper protects your API with Azure Active Directory.
 
 ## Description
-The here implemented Gatekeeper can be used as a Reverse Proxy in front of your API that is hosted in a Kubernetes Custer. The [SideCar](https://docs.microsoft.com/en-us/azure/architecture/patterns/sidecar) pattern is used to put the gatekeeper in front of your API.
+The here implemented Gatekeeper can be used as a Reverse Proxy in front of your API that is hosted in a Kubernetes Cluster. The [SideCar](https://docs.microsoft.com/en-us/azure/architecture/patterns/sidecar) pattern is used to put the gatekeeper in front of your API.
 Protecting an API using Azure Active Directory can often be anoying, especially if you are using programming languages
 where no Azure Active Directory integration libraries are available or if you don't find any examples in the internet.
 The AadApiGatekeeper is implemented in ASP.NET Core and can be used on every platfrom that supports the .NET Core runtime.
@@ -32,7 +32,7 @@ Authentication section:
 
 Proxy section:
 - Port -> the port to use running the Gatekeeper
-- ForwardPort -> the port to which requests are forwared (port of your API)
-- AnonymousPaths -> a comma seperated list of public acessable routes in your API. E.g.: if you are using Swagger you have to specify "/swagger" or if you have additionally public routes "/swagger,/public"
+- ForwardPort -> the port to which requests are forwarded (port of your API)
+- AnonymousPaths -> a comma separated list of public acessable routes in your API. E.g.: if you are using Swagger you have to specify "/swagger" or if you have additionally public routes "/swagger,/public"
 
 ### Overview
