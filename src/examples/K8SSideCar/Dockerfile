@@ -12,7 +12,6 @@ RUN dotnet publish -c Release -o out
 # Build runtime image
 FROM microsoft/aspnetcore:2.0
 WORKDIR /app
-EXPOSE 80
 COPY --from=build-env /app/out .
 RUN mkdir -p /app/etc/keys
 ENTRYPOINT ["dotnet", "K8SSideCar.dll"]
