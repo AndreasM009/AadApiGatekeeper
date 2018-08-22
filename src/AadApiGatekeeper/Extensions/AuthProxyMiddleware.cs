@@ -67,7 +67,7 @@ namespace Microsoft.AspNetCore.Authentication
             _next = next;
             _authProxyOptions = authProxyOptions.Value;
 
-            _anonymousPaths = _authProxyOptions.AnonymousPaths.Split(',').ToList();
+            _anonymousPaths = _authProxyOptions.AnonymousPaths?.Split(',').ToList() ?? new List<string>();
         }
 
         public async Task Invoke(HttpContext context)
