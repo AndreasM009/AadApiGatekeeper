@@ -1,7 +1,7 @@
 ﻿apiVersion: v1
 kind: Secret
 metadata:
-  name: k8ssidecar
+  name: myapi
 type: Opaque
 data:
   AuthCliendId: "#{AadClientID}#"
@@ -11,14 +11,14 @@ data:
 apiVersion: "v1"
 kind: Service
 metadata:
-  name: k8ssidecarsvc
+  name: myapisvc
   labels:
-    name: k8ssidecarsvc
-    app: k8ssidecar
+    name: myapisvc
+    app: myapi
 spec:
   selector:
-    name: k8ssidecarbackend
-    app: k8ssidecar
+    name: myapibackend
+    app: myapi
   type: LoadBalancer
   ports:
     - port: 80
@@ -29,7 +29,7 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: k8ssidecarbackend
+  name: myapibackend
 spec:
   replicas: 2
   minReadySeconds: 5
@@ -41,8 +41,8 @@ spec:
   template:
     metadata:
       labels:
-        name: k8ssidecarbackend
-        app: k8ssidecar
+        name: myapibackend
+        app: myapi
     spec:
       containers:
       - name: authproxy
@@ -51,17 +51,17 @@ spec:
           - name: Authentication__ClientId
             valueFrom: 
               secretKeyRef:
-                name: k8ssidecar
+                name: myapi
                 key: AuthCliendId
           - name: Authentication__ClientSecret
             valueFrom:
               secretKeyRef:
-                name: k8ssidecar
+                name: myapi
                 key: AuthClientSecret
           - name: Authentication__Tenant
             valueFrom:
               secretKeyRef:
-                name: k8ssidecar
+                name: myapi
                 key: AuthAadTenant
           - name: Proxy__Port
             value: "8080"
@@ -73,7 +73,7 @@ spec:
           - containerPort: 8080
             name: http
             protocol: TCP           
-      - name: k8ssidecar
-        image: #{registryname}#.azurecr.io/k8ssidecar:0.0.#{BuildNumber}#
+      - name: myapi
+        image: #{registryname}#.azurecr.io/myapi:0.0.#{BuildNumber}#
       imagePullSecrets:
         - name: #{registrysecret}#
