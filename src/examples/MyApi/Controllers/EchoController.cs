@@ -5,14 +5,11 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 
-namespace K8SSideCar
+namespace MyApi.Controllers
 {
-    [Authorize]
     [Route("api/[Controller]")]
     public class EchoController : Controller
     {
@@ -22,18 +19,18 @@ namespace K8SSideCar
             // collect all http headers and return a string
             var builder = new StringBuilder(Environment.NewLine);
 
-            foreach (var claim in this.HttpContext.User.Claims)
+            foreach (var claim in HttpContext.User.Claims)
             {
                 builder.AppendLine($"{claim.Type} {claim.Value} {claim.ValueType}");
             }            
 
-            foreach (var header in this.HttpContext.Request.Headers)
+            foreach (var header in HttpContext.Request.Headers)
             { 
                 builder.AppendLine($"{header.Key}:{header.Value}");
             }
 
-            builder.AppendLine(this.HttpContext.Request.Path.ToString());
-            builder.AppendLine(this.HttpContext.Request.Host.ToString());
+            builder.AppendLine(HttpContext.Request.Path.ToString());
+            builder.AppendLine(HttpContext.Request.Host.ToString());
             return builder.ToString();
         }
 
@@ -41,8 +38,7 @@ namespace K8SSideCar
         public async Task<Dictionary<string, string>> GetClaims()
         {
             // get bearer token of current request
-            var token = new StringValues();
-            if (!Request.Headers.TryGetValue("Authorization", out token))
+            if (!Request.Headers.TryGetValue("Authorization", out var token))
                 return null;
 
             // the token
