@@ -9,7 +9,7 @@ Protecting an API using Azure Active Directory can often be anoying, especially 
 where no Azure Active Directory integration libraries are available or if you don't find any examples in the internet.
 The AadApiGatekeeper is implemented in ASP.NET Core and can be used on every platfrom that supports the .NET Core runtime.
 
-![Architecure](doc/pics/Architecure.png)
+![Architecture](doc/pics/Architecture.png)
 
 ### Azure Active Directory Integration
 
