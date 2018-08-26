@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,16 +21,21 @@ namespace Microsoft.AspNetCore.Authentication
 
             collection.AddAuthentication(options =>
             {
-                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
             })
-            .AddAzureAdBearer(authOptions);
+            .AddAzureAd(authOptions)
+            .AddCookie();
+
+            collection.AddHttpContextAccessor();
 
             return collection;
         }
 
         public static IApplicationBuilder UseAuthProxy(this IApplicationBuilder builder)
         {
-            var proxyOptions = builder.ApplicationServices.GetService<IOptions<AuthProxyOptions>>().Value;            
+            var proxyOptions = builder.ApplicationServices.GetService<IOptions<AuthProxyOptions>>().Value; 
+            var httpContextAccessor = builder.ApplicationServices.GetService<IHttpContextAccessor>();           
 
             builder.UseAuthentication();
 
@@ -39,7 +46,7 @@ namespace Microsoft.AspNetCore.Authentication
                 Scheme = "http",
                 Host = "localhost",
                 Port = proxyOptions.ForwardPort,
-                BackChannelMessageHandler = new AuthBackChannelHandler(),
+                BackChannelMessageHandler = new AuthBackChannelHandler(httpContextAccessor),
             }));
 
             return builder;
@@ -47,7 +54,8 @@ namespace Microsoft.AspNetCore.Authentication
 
         private static bool MustForward(HttpContext context)
         {
-            if (context.Request.Path.StartsWithSegments(new PathString("/me")))
+            if (context.Request.Path.StartsWithSegments(new PathString("/me")) ||
+                context.Request.Path.StartsWithSegments(new PathString("/login")))
             {
                 return false;
             }
@@ -74,6 +82,10 @@ namespace Microsoft.AspNetCore.Authentication
         {
             // Authenticated?
             if (context.User.Identity.IsAuthenticated)
+            {
+                await _next(context);
+            }
+            else if (context.Request.Path.StartsWithSegments(new PathString("/login")))
             {
                 await _next(context);
             }
