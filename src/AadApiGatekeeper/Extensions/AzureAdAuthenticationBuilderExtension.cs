@@ -75,7 +75,7 @@ namespace Microsoft.AspNetCore.Authentication
             public void Configure(string name, OpenIdConnectOptions options)
             {
                 options.ClientId = _azureOptions.ClientId;
-                options.ClientSecret = _azureOptions.ClientId;
+                options.ClientSecret = _azureOptions.ClientSecret;
                 options.Authority = $"https://login.microsoftonline.com/{_azureOptions.Tenant}";
                 options.UseTokenLifetime = true;
                 options.CallbackPath = "/signin-oidc";
