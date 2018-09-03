@@ -4,8 +4,8 @@ metadata:
   name: myapi
 type: Opaque
 data:
-  AuthCliendId: "#{AadClientID}#"
-  AuthClientSecret: "#{AddClientSecret}#"
+  AuthCliendId: "#{AadClientId}#"
+  AuthClientSecret: "#{AadClientSecret}#"
   AuthAadTenant: "#{AadTenant}#"
 ---
 apiVersion: "v1"
