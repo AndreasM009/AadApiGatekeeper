@@ -39,6 +39,24 @@ namespace Microsoft.AspNetCore.Authentication
 
             builder.UseAuthentication();
 
+            builder.Use(async (context, next) => 
+            {
+                var scheme = OpenIdConnectDefaults.AuthenticationScheme;
+
+                if (context.Request.Headers.ContainsKey("Authorization"))
+                {
+                    scheme = JwtBearerDefaults.AuthenticationScheme;
+                }
+
+                var result = await context.AuthenticateAsync(scheme);
+                if (result.Succeeded)
+                {
+                    context.User = result.Principal;
+                }
+
+                await next();
+            });
+
             builder.UseMiddleware<AuthProxyMiddleware>();
 
             builder.MapWhen(MustForward, b => b.RunProxy(new ProxyOptions

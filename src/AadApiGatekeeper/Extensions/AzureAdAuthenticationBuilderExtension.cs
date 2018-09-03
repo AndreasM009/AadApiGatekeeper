@@ -18,8 +18,8 @@ namespace Microsoft.AspNetCore.Authentication
             builder.Services.Configure(configureOptions);
             builder.Services.AddSingleton<IConfigureOptions<JwtBearerOptions>, ConfigureAzureOptions>();
             builder.Services.AddSingleton<IConfigureOptions<OpenIdConnectOptions>, ConfigureOpenIdConnecteOptions>();
-            builder.AddJwtBearer();
             builder.AddOpenIdConnect();
+            builder.AddJwtBearer();
             return builder;
         }
 
@@ -73,7 +73,7 @@ namespace Microsoft.AspNetCore.Authentication
             }
 
             public void Configure(string name, OpenIdConnectOptions options)
-            {
+            {                
                 options.ClientId = _azureOptions.ClientId;
                 options.ClientSecret = _azureOptions.ClientSecret;
                 options.Authority = $"https://login.microsoftonline.com/{_azureOptions.Tenant}";
@@ -95,7 +95,7 @@ namespace Microsoft.AspNetCore.Authentication
 
                         // save the token in the user's claim set to access it later
                         var identity = context.Principal.Identity as ClaimsIdentity;
-                        identity.AddClaim(new Claim("access_token", authResult.AccessToken));
+                        identity.AddClaim(new Claim("access_token", authResult.IdToken));
 
                         // Notify the OIDC middleware that we already took care of code redemption.
                         context.HandleCodeRedemption(context.ProtocolMessage);
