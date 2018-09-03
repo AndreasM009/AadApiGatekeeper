@@ -75,5 +75,8 @@ spec:
             protocol: TCP           
       - name: myapi
         image: #{registryname}#.azurecr.io/myapi:0.0.#{BuildNumber}#
+        env:
+          - name: Api__ProxyPort
+            value: "8080"
       imagePullSecrets:
         - name: #{registrysecret}#
