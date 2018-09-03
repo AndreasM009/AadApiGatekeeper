@@ -46,13 +46,20 @@ namespace MyApi.Controllers
             // the token
             var bearerToken = token.First().Replace("Bearer ", "");
 
-            // create a http GET request and set authorization header
-            var httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", bearerToken);
-            var proxyPort = Environment.GetEnvironmentVariable("Api__ProxyPort");
-            var result = await httpClient.GetStringAsync($"http://localhost:{proxyPort}/me");
+            try
+            {
+                // create a http GET request and set authorization header
+                var httpClient = new HttpClient();
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", bearerToken);
+                var proxyPort = Environment.GetEnvironmentVariable("Api__ProxyPort");
+                var result = await httpClient.GetStringAsync($"http://localhost:{proxyPort}/me");
 
-            return JsonConvert.DeserializeObject<Dictionary<string, string>>(result);
+                return JsonConvert.DeserializeObject<Dictionary<string, string>>(result);
+            }
+            catch (Exception e)
+            {
+                throw;
+            }            
         }
     }
 }

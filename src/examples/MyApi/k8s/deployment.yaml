@@ -31,7 +31,7 @@ kind: Deployment
 metadata:
   name: myapibackend
 spec:
-  replicas: 2
+  replicas: 1
   minReadySeconds: 5
   strategy:
     type: RollingUpdate
