@@ -67,7 +67,7 @@ spec:
             value: "8080"
           - name: Proxy__ForwardPort
             value: "80"
-          - name: Proxy_AnonymousPaths
+          - name: Proxy__AnonymousPaths
             value: "/swagger"
         ports:
           - containerPort: 8080
