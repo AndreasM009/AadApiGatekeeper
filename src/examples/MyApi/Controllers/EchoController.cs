@@ -6,6 +6,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 
 namespace MyApi.Controllers
@@ -37,8 +38,9 @@ namespace MyApi.Controllers
         [HttpGet("claims")]
         public async Task<Dictionary<string, string>> GetClaims()
         {
+            var token = new StringValues();
             // get bearer token of current request
-            if (!Request.Headers.TryGetValue("Authorization", out var token))
+            if (!Request.Headers.TryGetValue("Authorization", out token))
                 return null;
 
             // the token
