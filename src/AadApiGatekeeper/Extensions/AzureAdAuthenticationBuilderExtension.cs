@@ -91,14 +91,15 @@ namespace Microsoft.AspNetCore.Authentication
                         string userName = user.FindFirstValue(ClaimTypes.Upn) ?? user.FindFirstValue(ClaimTypes.Email);
                         var clientCredentials = new ClientCredential(_azureOptions.ClientId, _azureOptions.ClientSecret);
                         var authContext = new AuthenticationContext($"https://login.microsoftonline.com/{_azureOptions.Tenant}/");
-                        var authResult = await authContext.AcquireTokenByAuthorizationCodeAsync(context.ProtocolMessage.Code, new Uri($"{context.Request.Scheme}://{context.Request.Host}/signin-oidc"), clientCredentials);
+                        var authResult = await authContext.AcquireTokenByAuthorizationCodeAsync(context.ProtocolMessage.Code, new Uri($"{context.Request.Scheme}://{context.Request.Host}/signin-oidc"), clientCredentials, _azureOptions.ClientId);
 
                         // save the token in the user's claim set to access it later
                         var identity = context.Principal.Identity as ClaimsIdentity;
-                        identity.AddClaim(new Claim("access_token", authResult.IdToken));
+                        identity.AddClaim(new Claim("access_token", authResult.AccessToken));
 
                         // Notify the OIDC middleware that we already took care of code redemption.
                         context.HandleCodeRedemption(context.ProtocolMessage);
+                        //return Task.FromResult(true);
                     }
                 };
             }
