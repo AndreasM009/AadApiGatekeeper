@@ -24,7 +24,6 @@ Creating a new AAD application is shown [here](https://docs.microsoft.com/en-us/
 - Define public accessable routes in your API
 - Simple Kubernetes integration ([SideCar example](doc/SideCarExample.md))
 - Token caching
-- Lightweight
 
 ### Configuration
 
