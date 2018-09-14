@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace AadApiGatekeeper.Controllers
 {
@@ -9,13 +10,20 @@ namespace AadApiGatekeeper.Controllers
     [Authorize]
     public class LoginController : Controller
     {
+        private readonly AuthProxyOptions _options;
+
+        public LoginController(IOptions<AuthProxyOptions> options)
+        {
+            _options = options.Value;
+        }
+
         [HttpGet]
         [AllowAnonymous]
         public IActionResult SignIn()
         {
             return Challenge(new AuthenticationProperties
             {
-                RedirectUri = "/me"
+                RedirectUri = _options.RedirectUri
             }, OpenIdConnectDefaults.AuthenticationScheme);
         }
     }
