@@ -44,13 +44,8 @@ namespace AuthProxy.Controllers
 
                 // Get the access token
                 var token = claim.Value;
-
-                //We are passing an *assertion* to Azure AD about the current user
-                //Here we specify that assertion's type, that is a JWT Bearer token
                 var assertionType = "urn:ietf:params:oauth:grant-type:jwt-bearer";
-
-                //User name is needed here only for ADAL, it is not passed to AAD
-                //ADAL uses it to find a token in the cache if available
+                
                 var user = this.HttpContext.User;
                 string userName = user.FindFirstValue(ClaimTypes.Upn) ?? user.FindFirstValue(ClaimTypes.Email);
                 var userAssertion = new UserAssertion(token, assertionType, userName);

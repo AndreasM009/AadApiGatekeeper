@@ -99,7 +99,6 @@ namespace Microsoft.AspNetCore.Authentication
 
                         // Notify the OIDC middleware that we already took care of code redemption.
                         context.HandleCodeRedemption(context.ProtocolMessage);
-                        //return Task.FromResult(true);
                     }
                 };
             }
