@@ -63,6 +63,8 @@ spec:
               secretKeyRef:
                 name: myapi
                 key: AuthAadTenant
+          - name: Authentication_RedirectUri
+            value: "/swagger"
           - name: Proxy__Port
             value: "8080"
           - name: Proxy__ForwardPort
