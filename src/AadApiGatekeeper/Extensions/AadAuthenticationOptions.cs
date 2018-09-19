@@ -10,5 +10,6 @@ namespace Microsoft.AspNetCore.Authentication
         public string ClientId { get; set; }
         public string ClientSecret { get; set; }
         public string Tenant { get; set; }
+        public string RedirectUri { get; set; } = "/me";
     }
 }

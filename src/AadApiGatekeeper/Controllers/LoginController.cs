@@ -10,9 +10,9 @@ namespace AadApiGatekeeper.Controllers
     [Authorize]
     public class LoginController : Controller
     {
-        private readonly AuthProxyOptions _options;
+        private readonly AadAuthenticationOptions _options;
 
-        public LoginController(IOptions<AuthProxyOptions> options)
+        public LoginController(IOptions<AadAuthenticationOptions> options)
         {
             _options = options.Value;
         }
