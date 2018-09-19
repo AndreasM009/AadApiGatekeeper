@@ -37,6 +37,7 @@ Configuration is done using environment variables. There are two sections:
 - ClientId -> the ClientId (or ApplicationId) of your registered Azure AD application
 - ClientSecret -> the ClientSecret of your Azure AD application. This setting is needed for acquiring tokens to other protected Azure AD resources on behalf of the authenticated user
 - Tenant -> Azure AD tenant id or directory name
+- RedirectUri -> the uri to use after login e.g. /swagger
 
 #### Proxy section
 

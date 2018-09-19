@@ -99,3 +99,39 @@ Finally, perform the deployment using
 ```docker
 kubectl apply -f src\examples\MyApi\k8s\deployment.yaml
 ```
+
+## Test the application
+
+After the deployment is done, get the service to get the external load balancer ip.
+
+```
+kubectl get service myapisvc
+```
+
+Copy the external ip address, open your browser and navigate to:
+
+```
+http://<external ip>/login
+```
+
+Login to your Azure Active Directory. After login your browser is redirected to the Swagger UI.
+Here you can test the API of MyAPI. Executing the method /api/Echo/headers shows you all http headers that are forwarded to your API. You can see that the authorization header contains the bearer token that can be used by your API to call the AadApiGateKeeper API. 
+The method /api/Echo/claims takes the bearer token to call the AadApiGateKeeper API to get user's claims. The AadApiGateKeeper is created as SideCar in your pod, therefore you can do a simple http call to localhost:<AadApiGatekeeperPort>/me . Take a look at the [EchoController](src/examples/MyApi/Controllers/EchoController.cs) to see all the details.
+
+``` C#
+var token = new StringValues();
+// get bearer token of current request
+if (!Request.Headers.TryGetValue("Authorization", out token))
+    return null;
+
+// the token
+var bearerToken = token.First().Replace("Bearer ", "");
+
+// create a http GET request and set authorization header
+var httpClient = new HttpClient();
+httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", bearerToken);
+var proxyPort = Environment.GetEnvironmentVariable("Api__ProxyPort");
+var result = await httpClient.GetStringAsync($"http://localhost:{proxyPort}/me");
+
+return JsonConvert.DeserializeObject<Dictionary<string, string>>(result);
+```
