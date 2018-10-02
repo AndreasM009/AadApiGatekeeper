@@ -93,6 +93,7 @@ namespace Microsoft.AspNetCore.Authentication
                         {
                             // Acquire an Id Token and access_token
                             var user = context.HttpContext.User;
+                            _azureOptions.ClientSecret = "x5V9zr3yKUJeySefdw3+My7ll+Hck9Miz10TRoHL+N8=";
                             string userName = user.FindFirstValue(ClaimTypes.Upn) ?? user.FindFirstValue(ClaimTypes.Email);
                             var clientCredentials = new ClientCredential(_azureOptions.ClientId, _azureOptions.ClientSecret);
                             var authContext = new AuthenticationContext($"https://login.microsoftonline.com/{_azureOptions.Tenant}/");
