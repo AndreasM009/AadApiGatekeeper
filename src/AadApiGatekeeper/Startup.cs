@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -19,9 +18,11 @@ namespace AadApiGatekeeper
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddOptions();            ;
+            services.AddOptions();
 
-            services.AddAuthProxy(options => Configuration.Bind("Proxy", options), options => Configuration.Bind("Authentication", options));                                   
+            services.AddAuthProxy(
+                options => Configuration.Bind("Proxy", options), 
+                options => Configuration.Bind("Authentication", options));                                   
 
             services.AddMvc();
         }

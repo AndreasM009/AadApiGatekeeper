@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
@@ -66,10 +67,12 @@ namespace Microsoft.AspNetCore.Authentication
         private class ConfigureOpenIdConnecteOptions : IConfigureNamedOptions<OpenIdConnectOptions>
         {
             private readonly AadAuthenticationOptions _azureOptions;
+            private readonly ILogger _Logger; 
 
-            public ConfigureOpenIdConnecteOptions(IOptions<AadAuthenticationOptions> azureOptions)
+            public ConfigureOpenIdConnecteOptions(IOptions<AadAuthenticationOptions> azureOptions, ILogger<ConfigureOpenIdConnecteOptions> logger)
             {
                 _azureOptions = azureOptions.Value;
+                _Logger = logger;
             }
 
             public void Configure(string name, OpenIdConnectOptions options)
@@ -86,19 +89,27 @@ namespace Microsoft.AspNetCore.Authentication
                 {
                     OnAuthorizationCodeReceived = async context =>
                     {
-                        // Acquire an Id Token and access_token
-                        var user = context.HttpContext.User;
-                        string userName = user.FindFirstValue(ClaimTypes.Upn) ?? user.FindFirstValue(ClaimTypes.Email);
-                        var clientCredentials = new ClientCredential(_azureOptions.ClientId, _azureOptions.ClientSecret);
-                        var authContext = new AuthenticationContext($"https://login.microsoftonline.com/{_azureOptions.Tenant}/");
-                        var authResult = await authContext.AcquireTokenByAuthorizationCodeAsync(context.ProtocolMessage.Code, new Uri($"{context.Request.Scheme}://{context.Request.Host}/signin-oidc"), clientCredentials, _azureOptions.ClientId);
+                        try
+                        {
+                            // Acquire an Id Token and access_token
+                            var user = context.HttpContext.User;
+                            string userName = user.FindFirstValue(ClaimTypes.Upn) ?? user.FindFirstValue(ClaimTypes.Email);
+                            var clientCredentials = new ClientCredential(_azureOptions.ClientId, _azureOptions.ClientSecret);
+                            var authContext = new AuthenticationContext($"https://login.microsoftonline.com/{_azureOptions.Tenant}/");
+                            var authResult = await authContext.AcquireTokenByAuthorizationCodeAsync(context.ProtocolMessage.Code, new Uri($"{context.Request.Scheme}://{context.Request.Host}/signin-oidc"), clientCredentials, _azureOptions.ClientId);
 
-                        // save the token in the user's claim set to access it later
-                        var identity = context.Principal.Identity as ClaimsIdentity;
-                        identity.AddClaim(new Claim("access_token", authResult.AccessToken));
+                            // save the token in the user's claim set to access it later
+                            var identity = context.Principal.Identity as ClaimsIdentity;
+                            identity.AddClaim(new Claim("access_token", authResult.AccessToken));
 
-                        // Notify the OIDC middleware that we already took care of code redemption.
-                        context.HandleCodeRedemption(context.ProtocolMessage);
+                            // Notify the OIDC middleware that we already took care of code redemption.
+                            context.HandleCodeRedemption(context.ProtocolMessage);
+                        }
+                        catch (Exception)
+                        {
+                            _Logger.LogError($"Acquire token failed with: {_azureOptions.ClientId} {_azureOptions.ClientSecret}");
+                            throw new Exception("Acquire token failed.");
+                        }
                     }
                 };
             }
