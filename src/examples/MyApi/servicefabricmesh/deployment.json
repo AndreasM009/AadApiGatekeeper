@@ -1,0 +1,166 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "Application.Name": {
+            "type": "string",
+            "defaultValue": "MyApi",
+            "metadata": {
+                "description": "Name of the Service Fabric Application"
+            }
+        },
+        "Application.Description": {
+            "type": "string",
+            "defaultValue": "Application that shows the usage of AadApiGateKeeper",
+            "metadata": {
+                "description": "Description of the Service Fabric Application"
+            }
+        },        
+        "Application.Network.Name": {
+            "type": "string",
+            "defaultValue": "MyApi-Networks-Public",
+            "metadata": {
+                "description": "Name of network to use in which your Service Fabric Application will be"
+            }
+        }        
+    },
+    "resources": [
+        {
+            "apiVersion": "2018-07-01-preview",
+            "name": "[parameters('Application.Network.Name')]",
+            "type": "Microsoft.ServiceFabricMesh/networks",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [],
+            "properties": {
+                "description": "Public network for MyApi",
+                "addressPrefix": "10.0.0.4/22",
+                "ingressConfig": {
+                    "qosLevel": "bronze",
+                    "layer4": [
+                        {
+                            "publicPort": "80",
+                            "applicationName": "[parameters('Application.Name')]",
+                            "serviceName": "AadApiGateKeeper",
+                            "endpointName": "AadApiGateKeeper-HTTP-Endpoint"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "apiVersion": "2018-07-01-preview",
+            "name": "[parameters('Application.Name')]",
+            "type": "Microsoft.ServiceFabricMesh/applications",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "description": "[parameters('Application.Description')]",
+                "services": [
+                    {
+                        "name": "AadApiGateKeeper",
+                        "properties": {
+                            "description": "Gatekeeper to protect your API with AAD",
+                            "osType": "linux",
+                            "codePackages": [
+                                {
+                                    "name": "AadApiGateKeeper",
+                                    "image": "#{registryname}#.azurecr.io/aadapigatekeeper:0.0.#{BuildNumber}#",
+                                    "endpoints": [
+                                        {
+                                            "name": "AadApiGateKeeper-HTTP-Endpoint",
+                                            "port": 8080
+                                        }
+                                    ],
+                                    "environmentVariables": [
+                                        {
+                                            "name": "ASPNETCORE_ENVIRONMENT",
+                                            "value": "Development"
+                                        },
+                                        {
+                                            "name": "ASPNETCORE_URLS",
+                                            "value": "http://+:8080"
+                                        },
+                                        {
+                                            "name": "Authentication__ClientId",
+                                            "value": "#{SfMeshAadClientId}#"
+                                        },
+                                        {
+                                            "name": "Authentication__ClientSecret",
+                                            "value": "#{SfMeshAadClientSecret}#"
+                                        },
+                                        {
+                                            "name": "Authentication__Tenant",
+                                            "value": "#{SfMeshAadTenant}#"
+                                        },
+                                        {
+                                            "name": "Authentication__RedirectUri",
+                                            "value": "/swagger"
+                                        },
+                                        {
+                                            "name": "Proxy__Port",
+                                            "value": "8080"
+                                        },
+                                        {
+                                            "name": "Proxy__ForwardPort",
+                                            "value": "80"
+                                        },
+                                        {
+                                            "name": "Proxy__AnonymousPaths",
+                                            "value": "/swagger"
+                                        }
+                                    ],
+                                    "resources": {
+                                        "requests": {
+                                            "cpu": 1,
+                                            "memoryInGB": 1
+                                        }
+                                    },
+                                    "imageRegistryCredential": {
+                                        "server": "#{ACRServer}#",
+                                        "username": "#{ACRUsername}#",
+                                        "password": "#{ACRPassword}#"
+                                    }
+                                },
+                                {
+                                    "name": "MyApi",
+                                    "image": "#{registryname}#.azurecr.io/myapi:0.0.#{BuildNumber}#",
+                                    "endpoints": [],
+                                    "environmentVariables": [
+                                        {
+                                            "name": "ASPNETCORE_ENVIRONMENT",
+                                            "value": "Development"
+                                        },
+                                        {
+                                            "name": "ASPNETCORE_URLS",
+                                            "value": "http://+:80"
+                                        },
+                                        {
+                                            "name": "Api__ProxyPort",
+                                            "value": "8080"
+                                        }
+                                    ],
+                                    "resources": {
+                                        "requests": {
+                                            "cpu": 1,
+                                            "memoryInGB": 1
+                                        }
+                                    },
+                                    "imageRegistryCredential": {
+                                        "server": "#{ACRServer}#",
+                                        "username": "#{ACRUsername}#",
+                                        "password": "#{ACRPassword}#"
+                                    }
+                                }
+                            ],
+                            "replicaCount": 1,
+                            "networkRefs": [
+                                {
+                                    "name": "[resourceId('Microsoft.ServiceFabricMesh/networks', parameters('Application.Network.Name'))]"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

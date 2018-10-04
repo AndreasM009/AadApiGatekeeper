@@ -4,7 +4,8 @@ AadApiGatekeeper protects your API by enabling Azure Active Directory authentica
 
 ## Description
 
-The here implemented Gatekeeper can be used as a Reverse Proxy in front of your API that is hosted in a Kubernetes Cluster. The [SideCar](https://docs.microsoft.com/en-us/azure/architecture/patterns/sidecar) pattern is used to put the gatekeeper in front of your API.
+The here implemented Gatekeeper can be used as a Reverse Proxy in front of your API that is hosted in a Kubernetes Cluster
+or ServiceFabric Mesh. The [SideCar](https://docs.microsoft.com/en-us/azure/architecture/patterns/sidecar) pattern is used to put the gatekeeper in front of your API.
 Protecting an API using Azure Active Directory can often be anoying, especially if you are using programming languages
 where no Azure Active Directory integration libraries are available or if you don't find any examples in the internet.
 The AadApiGatekeeper is implemented in ASP.NET Core and can be used on every platfrom that supports the .NET Core runtime.

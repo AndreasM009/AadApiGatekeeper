@@ -1,4 +1,4 @@
-# Example how to use the AadApiGatekeeper in a Kubernetes Pod
+# Example how to use the AadApiGatekeeper in a Kubernetes Pod or in ServiceFabric Mesh
 
 ## Prerequisites
 
@@ -6,6 +6,7 @@
 * **Azure container registry** - Create a container registry in your Azure subscription. For example, use the [Azure portal](container-registry-get-started-portal.md) or the [Azure CLI](container-registry-get-started-azure-cli.md).
 * **Docker CLI** - To set up your local computer as a Docker host and access the Docker CLI commands, install [Docker](https://docs.docker.com/engine/installation/).
 * **kubectl** command-line tool to deploy and manage applications on Kubernetes. [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
+* **az mesh** extension to deploy and manage applications on ServiceFabric Mesh. [mesh](https://docs.microsoft.com/en-us/azure/service-fabric-mesh/service-fabric-mesh-howto-setup-cli)
 
 ## Containerize the AadApiGatekeeper and the myapi sample application
 
@@ -79,7 +80,7 @@
     ```
     Navigate to and check the [dashboard](http://localhost:8001/api/v1/namespaces/kube-system/services/kubernetes-dashboard/proxy/#!/pod?namespace=default).
 
-## Deploy the containers
+## Deploy the containers to Kubernetes
 
 The sample already contains a deployment template located at `src\examples\MyApi\k8s\deployment.yaml`. All you have to do is to replace the environment variables and secrets. 
 > **Note:** You have to specify the secrets in *Base64*. You can use the following PowerShell script for the encoding:
@@ -100,7 +101,31 @@ Finally, perform the deployment using
 kubectl apply -f src\examples\MyApi\k8s\deployment.yaml
 ```
 
+## Deploy the container to ServiceFabric Mesh
+
+The sample already contains a deplyoment template located at: `src\examples\MyApi\servicefabricmesh\deployment.json`.
+All you have to do is to replace the environment variables.
+To create an Azure Active Directory application there is a utility Powershell script located at `src\examples\MyApi\utils\New-MyApiAadApplication.ps1`. You can use this script to create the application in your Azure Active Directory tenant. The script returns the needed ClientId, ClientSecret and TenantId which must be replaced in the deployment file. 
+
+``` Powershell
+./New-MyApiAadApplication.ps1
+```
+
+Replace the environment variables and create a new resource group.
+
+``` Azure CLI
+az group create --name "<your rg name>" --location westeurope
+```
+
+After the resource group is created you can deploy the ServiceFabrci Mesh Application
+
+```
+az mesh deployment create --template-file <full path to src\examples\MyApi\servicefabricmesh\deployment.json>
+```
+
 ## Test the application
+
+### For a Kubernetes deployment do the following:
 
 After the deployment is done, get the service to get the external load balancer ip.
 
@@ -112,6 +137,25 @@ Copy the external ip address, open your browser and navigate to:
 
 ```
 http://<external ip>/login
+```
+
+### For a ServiceFabric Mesh deployment do the following
+
+After the deployment is done get the public Ip of the Mesh Application.
+
+```
+az mesh network list
+```
+Copy the ip address and modify the ReplyUrls of your Azure Active Directory application.
+You can do this either manually or by using the utility script located at `src\examples\MyApi\utils\Set-MyApiAadApplicationReplyUrl`.
+
+```
+.\Set-MyApiAadApplicationReplyUrl -ApplicationId <the app id> -IpAddress <the copied ip address>
+```
+Oopen your browser and navigate to:
+
+```
+http://<ip address>/login
 ```
 
 Login to your Azure Active Directory. After login your browser is redirected to the Swagger UI.
