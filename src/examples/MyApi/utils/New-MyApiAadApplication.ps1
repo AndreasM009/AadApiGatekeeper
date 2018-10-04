@@ -1,6 +1,10 @@
 # This script creates an Azure Active Directory Application for the sample Application MyApi.
 # The script returns the ClientId and ClientSecret of the application.
 # Please save these values to configure your Kubernetes or ServiceFabric Mesh deployment.
+Param(
+    [string]$DisplayName="MyApi",
+    [string]$IdentifierUri="http://MyApi"
+)
 Function GetAuthToken
 {
     param(
@@ -22,20 +26,22 @@ $tenant = $(Get-AzureRmContext).Tenant.Id
 #Register the WebApplication in AAD
 $password = [System.Guid]::NewGuid().ToString()
 $application = New-AzureRmADApplication `
-    -DisplayName "MyApi" `
-    -IdentifierUris "http://MyApi" `
-    -AvailableToOtherTenants $false
-
-# Create a ServicePrincipal for the application
-New-AzureRmADServicePrincipal -ApplicationId $application.ApplicationId
-
-# Create a ClientSecret
-New-AzureRmADAppCredential `
-    -ApplicationId $application.ApplicationId `
+    -DisplayName $DisplayName `
+    -IdentifierUris $IdentifierUri `
+    -AvailableToOtherTenants $false `
     -Password (ConvertTo-SecureString -String $password -AsPlainText -Force) `
     -StartDate $([System.DateTime]::Now) `
     -EndDate $([System.DateTime]::Now.AddYears(2))
 
+# Create a ClientSecret
+# New-AzureRmADAppCredential `
+#     -ApplicationId $application.ApplicationId `
+#     -Password (ConvertTo-SecureString -String $password -AsPlainText -Force) `
+#     -StartDate $([System.DateTime]::Now) `
+#     -EndDate $([System.DateTime]::Now.AddYears(2))
+
+# Create a ServicePrincipal for the application
+New-AzureRmADServicePrincipal -ApplicationId $application.ApplicationId
 
 # Allow SignIn Users
 $applicationRequiredResourceAccess = @{requiredResourceAccess = @(

@@ -28,9 +28,18 @@ namespace AuthProxy.Controllers
         [HttpGet]
         public Dictionary<string, string> GetClaims()
         {
-            return this.HttpContext.User.Claims
-                .Where(c => !c.Type.Equals("access_token"))
-                .ToDictionary(c => c.Type, c => c.Value);
+            var result = new Dictionary<string, string>();
+
+            foreach (var c in this.HttpContext.User.Claims)
+            {
+                if (!c.Type.Equals("access_token") && !result.ContainsKey(c.Type))
+                    result.Add(c.Type, c.Value);
+            }
+
+            return result;
+            //return this.HttpContext.User.Claims
+            //    .Where(c => !c.Type.Equals("access_token"))
+            //    .ToDictionary(c => c.Type, c => c.Value);
         }
 
         [HttpGet("token/{resource}")]
