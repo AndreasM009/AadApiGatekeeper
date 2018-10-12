@@ -21,6 +21,9 @@ namespace AadApiGatekeeper.Controllers
         [AllowAnonymous]
         public IActionResult SignIn()
         {
+            if (_options.UseAadB2c)
+                return BadRequest("AAD B2C login not supported");
+
             return Challenge(new AuthenticationProperties
             {
                 RedirectUri = _options.RedirectUri

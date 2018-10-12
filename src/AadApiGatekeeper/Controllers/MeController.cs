@@ -40,13 +40,15 @@ namespace AuthProxy.Controllers
         }
 
         [HttpGet("token/{resource}")]
-        public async Task<string> AcquireToken(string resource)
+        public async Task<IActionResult> AcquireToken(string resource)
         {
+            if (_authOptions.UseAadB2c)
+                return BadRequest("AAD B2C does not support on-behalf-of flow.");
             try
             {
                 var claim = this.HttpContext.User.Claims.First(c => c.Type.Equals("access_token"));
                 if (null == claim)
-                    return string.Empty;
+                    return Ok(string.Empty);
 
                 // Get the access token
                 var token = claim.Value;
@@ -61,7 +63,7 @@ namespace AuthProxy.Controllers
                 var clientCredential = new ClientCredential(_authOptions.ClientId, _authOptions.ClientSecret);
                 var result = await authContext.AcquireTokenAsync(resource, clientCredential, userAssertion);
             
-                return result.AccessToken;
+                return Ok(result.AccessToken);
             }
             catch (Exception e)
             {
