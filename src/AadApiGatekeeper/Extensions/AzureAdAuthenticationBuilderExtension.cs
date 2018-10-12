@@ -52,6 +52,9 @@ namespace Microsoft.AspNetCore.Authentication
                     identity.AddClaim(new Claim("access_token", token.RawData));
                     return Task.FromResult(true);
                 };
+
+                if (_azureOptions.UseAadB2c)
+                    options.Authority = $"https://login.microsoftonline.com/tfp/{_azureOptions.Tenant}/{_azureOptions.AadB2CPolicy}/v2.0";
             }
 
             public void Configure(JwtBearerOptions options)

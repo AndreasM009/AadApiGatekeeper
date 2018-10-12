@@ -36,10 +36,7 @@ namespace AuthProxy.Controllers
                     result.Add(c.Type, c.Value);
             }
 
-            return result;
-            //return this.HttpContext.User.Claims
-            //    .Where(c => !c.Type.Equals("access_token"))
-            //    .ToDictionary(c => c.Type, c => c.Value);
+            return result;            
         }
 
         [HttpGet("token/{resource}")]

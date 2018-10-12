@@ -11,5 +11,7 @@ namespace Microsoft.AspNetCore.Authentication
         public string ClientSecret { get; set; }
         public string Tenant { get; set; }
         public string RedirectUri { get; set; } = "/me";
+        public bool UseAadB2c { get; set; }
+        public string AadB2CPolicy { get; set; }
     }
 }
